@@ -1,0 +1,273 @@
+<!doctype html>
+<html lang="en" data-theme="auto">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="color-scheme" content="light dark" />
+<meta name="theme-color" content="#0b0d10" media="(prefers-color-scheme: dark)" />
+<meta name="theme-color" content="#f7f8fa" media="(prefers-color-scheme: light)" />
+<meta name="description" content="A zero-dependency, client-side browser capability inspector. See exactly what your browser supports across CSS, JavaScript, Web APIs, hardware, and more." />
+<title>What Can My Browser Do?</title>
+<link rel="icon" href="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'><text y='52' font-size='52'>🔍</text></svg>" />
+<style>
+  :root {
+    --bg: #f7f8fa;
+    --bg-elev: #ffffff;
+    --bg-sunk: #eef0f4;
+    --fg: #0b0d10;
+    --fg-muted: #5c6370;
+    --fg-faint: #8a92a0;
+    --border: #e2e5ea;
+    --border-strong: #cdd2db;
+    --accent: #3b82f6;
+    --accent-fg: #ffffff;
+    --ok: #16a34a;
+    --ok-bg: #dcfce7;
+    --warn: #b45309;
+    --warn-bg: #fef3c7;
+    --err: #dc2626;
+    --err-bg: #fee2e2;
+    --pending: #6366f1;
+    --pending-bg: #e0e7ff;
+    --shadow: 0 1px 2px rgba(0,0,0,.04), 0 4px 16px rgba(0,0,0,.04);
+    --radius: 10px;
+    --radius-sm: 6px;
+    --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Inter, system-ui, sans-serif;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root[data-theme="auto"] {
+      --bg: #0b0d10;
+      --bg-elev: #14171c;
+      --bg-sunk: #090b0e;
+      --fg: #e6e8ec;
+      --fg-muted: #9aa2b0;
+      --fg-faint: #6a7280;
+      --border: #232831;
+      --border-strong: #323846;
+      --accent: #60a5fa;
+      --accent-fg: #0b0d10;
+      --ok: #4ade80;
+      --ok-bg: #052e16;
+      --warn: #fbbf24;
+      --warn-bg: #3a2a05;
+      --err: #f87171;
+      --err-bg: #3b0a0a;
+      --pending: #a5b4fc;
+      --pending-bg: #1e1b4b;
+      --shadow: 0 1px 2px rgba(0,0,0,.4), 0 4px 16px rgba(0,0,0,.3);
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #0b0d10; --bg-elev: #14171c; --bg-sunk: #090b0e;
+    --fg: #e6e8ec; --fg-muted: #9aa2b0; --fg-faint: #6a7280;
+    --border: #232831; --border-strong: #323846;
+    --accent: #60a5fa; --accent-fg: #0b0d10;
+    --ok: #4ade80; --ok-bg: #052e16;
+    --warn: #fbbf24; --warn-bg: #3a2a05;
+    --err: #f87171; --err-bg: #3b0a0a;
+    --pending: #a5b4fc; --pending-bg: #1e1b4b;
+    --shadow: 0 1px 2px rgba(0,0,0,.4), 0 4px 16px rgba(0,0,0,.3);
+  }
+
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    background: var(--bg); color: var(--fg);
+    font-family: var(--sans); font-size: 15px; line-height: 1.5;
+    -webkit-font-smoothing: antialiased; min-height: 100vh;
+  }
+  a { color: var(--accent); text-decoration: none; }
+  a:hover { text-decoration: underline; }
+
+  button, select, input {
+    font: inherit; color: inherit;
+    background: var(--bg-elev); border: 1px solid var(--border);
+    border-radius: var(--radius-sm); padding: 6px 10px; cursor: pointer;
+    transition: border-color .15s, background .15s;
+  }
+  button:hover, select:hover { border-color: var(--border-strong); }
+  button:focus-visible, select:focus-visible, input:focus-visible {
+    outline: 2px solid var(--accent); outline-offset: 1px;
+  }
+  input[type="search"] { cursor: text; min-width: 220px; }
+
+  header.app {
+    position: sticky; top: 0; z-index: 10;
+    background: color-mix(in srgb, var(--bg) 88%, transparent);
+    backdrop-filter: saturate(180%) blur(10px);
+    -webkit-backdrop-filter: saturate(180%) blur(10px);
+    border-bottom: 1px solid var(--border);
+  }
+  .toolbar {
+    max-width: 1200px; margin: 0 auto; padding: 16px 20px 12px;
+    display: flex; flex-wrap: wrap; gap: 10px; align-items: center;
+  }
+  .brand {
+    font-size: 17px; font-weight: 600; letter-spacing: -.01em;
+    margin-right: auto; display: flex; align-items: center; gap: 8px;
+  }
+  .brand .logo { font-size: 20px; }
+  .brand .beta {
+    font-size: 10px; font-weight: 600; color: var(--fg-muted);
+    border: 1px solid var(--border); padding: 2px 6px; border-radius: 999px;
+    letter-spacing: .04em; text-transform: uppercase;
+  }
+
+  .summary {
+    max-width: 1200px; margin: 0 auto; padding: 0 20px 12px;
+    display: flex; gap: 8px; flex-wrap: wrap; font-size: 13px;
+  }
+  .summary .chip {
+    padding: 3px 10px; border-radius: 999px; border: 1px solid var(--border);
+    background: var(--bg-elev); color: var(--fg-muted);
+  }
+  .summary .chip strong { color: var(--fg); font-weight: 600; }
+  .summary .chip.ok { background: var(--ok-bg); color: var(--ok); border-color: transparent; }
+  .summary .chip.ok strong { color: var(--ok); }
+  .summary .chip.warn { background: var(--warn-bg); color: var(--warn); border-color: transparent; }
+  .summary .chip.warn strong { color: var(--warn); }
+  .summary .chip.err { background: var(--err-bg); color: var(--err); border-color: transparent; }
+  .summary .chip.err strong { color: var(--err); }
+
+  .pillnav {
+    max-width: 1200px; margin: 0 auto; padding: 0 20px 14px;
+    display: flex; gap: 6px; flex-wrap: wrap;
+  }
+  .pillnav button {
+    padding: 5px 12px; border-radius: 999px; font-size: 13px;
+    background: var(--bg-elev);
+  }
+  .pillnav button[aria-pressed="true"] {
+    background: var(--fg); color: var(--bg); border-color: var(--fg);
+  }
+  .pillnav .count { font-size: 11px; color: var(--fg-faint); margin-left: 6px; }
+  .pillnav button[aria-pressed="true"] .count { color: color-mix(in srgb, var(--bg) 70%, var(--fg)); }
+
+  main { max-width: 1200px; margin: 0 auto; padding: 20px; }
+  .category { margin-bottom: 28px; scroll-margin-top: 200px; }
+  .category h2 {
+    font-size: 13px; text-transform: uppercase; letter-spacing: .08em;
+    color: var(--fg-muted); margin: 0 0 10px;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .category h2 .icon { font-size: 16px; }
+
+  .rows {
+    display: grid; grid-template-columns: 1fr; gap: 1px;
+    background: var(--border);
+    border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden;
+  }
+  .row {
+    display: grid; grid-template-columns: 28px 1fr auto;
+    gap: 12px; padding: 10px 14px;
+    background: var(--bg-elev); align-items: center;
+  }
+  .row .status {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 22px; height: 22px; border-radius: 50%;
+    font-size: 12px; font-weight: 700;
+  }
+  .row[data-supported="true"]    .status { background: var(--ok-bg);      color: var(--ok); }
+  .row[data-supported="partial"] .status { background: var(--warn-bg);    color: var(--warn); }
+  .row[data-supported="false"]   .status { background: var(--err-bg);     color: var(--err); }
+  .row[data-supported="pending"] .status { background: var(--pending-bg); color: var(--pending); }
+  .row .label { font-weight: 500; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+  .row .desc { color: var(--fg-muted); font-size: 13px; margin-top: 2px; }
+  .row .meta { display: flex; flex-direction: column; align-items: flex-end; gap: 2px; text-align: right; min-width: 0; }
+  .row .value {
+    font-family: var(--mono); font-size: 12px; color: var(--fg);
+    background: var(--bg-sunk); padding: 2px 6px; border-radius: var(--radius-sm);
+    max-width: 360px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  }
+  .row .note { font-size: 11px; color: var(--fg-faint); max-width: 360px; }
+  .row .mdn {
+    font-size: 11px; padding: 2px 6px; border-radius: var(--radius-sm);
+    border: 1px solid var(--border); color: var(--fg-muted);
+  }
+  .row.hidden { display: none; }
+
+  footer {
+    max-width: 1200px; margin: 40px auto 0; padding: 20px;
+    border-top: 1px solid var(--border);
+    color: var(--fg-muted); font-size: 12px;
+    display: flex; flex-wrap: wrap; gap: 12px; justify-content: space-between;
+  }
+  footer .ua { font-family: var(--mono); word-break: break-all; max-width: 100%; }
+
+  .empty {
+    padding: 40px 20px; text-align: center; color: var(--fg-muted);
+    background: var(--bg-elev); border: 1px dashed var(--border); border-radius: var(--radius);
+  }
+
+  .toast {
+    position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
+    background: var(--fg); color: var(--bg);
+    padding: 10px 16px; border-radius: var(--radius);
+    font-size: 13px; box-shadow: var(--shadow);
+    opacity: 0; pointer-events: none;
+    transition: opacity .2s, transform .2s;
+  }
+  .toast.show { opacity: 1; transform: translateX(-50%) translateY(-4px); pointer-events: auto; }
+
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation-duration: 0s !important; transition: none !important; }
+  }
+
+  @media (max-width: 640px) {
+    .toolbar { padding: 12px; }
+    .brand { width: 100%; }
+    input[type="search"] { flex: 1; min-width: 0; }
+    .row { grid-template-columns: 24px 1fr; }
+    .row .meta { grid-column: 1 / -1; align-items: flex-start; padding-left: 36px; text-align: left; }
+  }
+</style>
+</head>
+<body>
+  <header class="app">
+    <div class="toolbar" role="toolbar" aria-label="Controls">
+      <div class="brand">
+        <span class="logo" aria-hidden="true">🔍</span>
+        What Can My Browser Do?
+        <span class="beta">client-side</span>
+      </div>
+      <input id="search" type="search" placeholder="Search features… (press /)" aria-label="Search features" />
+      <select id="filter-support" aria-label="Filter by support">
+        <option value="all">All support</option>
+        <option value="true">Supported</option>
+        <option value="partial">Partial</option>
+        <option value="false">Unsupported</option>
+      </select>
+      <button id="btn-rerun" title="Re-run all detections">↻ Re-run</button>
+      <button id="btn-export" title="Download JSON snapshot">⬇ Export</button>
+      <button id="btn-share" title="Copy shareable URL">🔗 Share</button>
+      <button id="btn-theme" title="Toggle theme" aria-label="Toggle theme">◐</button>
+    </div>
+    <div class="summary" id="summary" aria-live="polite">
+      <span class="chip">Running…</span>
+    </div>
+    <nav class="pillnav" id="pillnav" aria-label="Categories"></nav>
+  </header>
+
+  <main id="results">
+    <div class="empty">Detecting browser capabilities…</div>
+  </main>
+
+  <footer>
+    <div>
+      <strong>What Can My Browser Do?</strong> ·
+      <a href="https://github.com/rithviknishad/what-can-my-browser-do">source</a> ·
+      MIT License · 100% client-side, zero network at runtime
+    </div>
+    <div class="ua" id="ua"></div>
+  </footer>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <noscript>
+    <p style="padding:20px;">This tool requires JavaScript to probe your browser's capabilities.</p>
+  </noscript>
+
+  <script type="module" src="./app/main.js"></script>
+</body>
+</html>
