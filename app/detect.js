@@ -3,9 +3,9 @@
 
 /** Normalize any return value to a SupportResult. */
 function normalize(r) {
-  if (r && typeof r.supported !== 'undefined') return r;
-  if (typeof r === 'boolean') return { supported: r };
-  return { supported: false, note: 'detect returned no result' };
+  if (r && typeof r.supported !== "undefined") return r;
+  if (typeof r === "boolean") return { supported: r };
+  return { supported: false, note: "detect returned no result" };
 }
 
 /** Run a single check's detect(), never throw. */
@@ -14,7 +14,10 @@ export async function safeDetect(check) {
     const out = await check.detect();
     return normalize(out);
   } catch (err) {
-    return { supported: false, note: 'threw: ' + (err && err.message ? err.message : String(err)) };
+    return {
+      supported: false,
+      note: "threw: " + (err && err.message ? err.message : String(err)),
+    };
   }
 }
 
@@ -23,12 +26,18 @@ export async function runAll(categories, onResult) {
   const tasks = [];
   for (const cat of categories) {
     for (const check of cat.checks) {
-      tasks.push(safeDetect(check).then((r) => { onResult?.(check.id, r); return [check.id, r]; }));
+      tasks.push(
+        safeDetect(check).then((r) => {
+          onResult?.(check.id, r);
+          return [check.id, r];
+        }),
+      );
     }
   }
   const settled = await Promise.allSettled(tasks);
   const map = new Map();
-  for (const s of settled) if (s.status === 'fulfilled') map.set(s.value[0], s.value[1]);
+  for (const s of settled)
+    if (s.status === "fulfilled") map.set(s.value[0], s.value[1]);
   return map;
 }
 
@@ -36,33 +45,50 @@ export async function runAll(categories, onResult) {
 
 export function hasGlobal(path) {
   try {
-    const parts = path.split('.');
+    const parts = path.split(".");
     let cur = globalThis;
     for (const p of parts) {
       if (cur == null) return false;
       cur = cur[p];
     }
     return cur != null;
-  } catch { return false; }
+  } catch {
+    return false;
+  }
 }
 
 export function cssSupports(a, b) {
-  try { return b === undefined ? CSS.supports(a) : CSS.supports(a, b); } catch { return false; }
+  try {
+    return b === undefined ? CSS.supports(a) : CSS.supports(a, b);
+  } catch {
+    return false;
+  }
 }
 
 export function mediaSupports(q) {
   try {
     const m = matchMedia(q);
-    return !!m && m.media !== 'not all';
-  } catch { return false; }
+    return !!m && m.media !== "not all";
+  } catch {
+    return false;
+  }
 }
 
 export function mediaMatches(q) {
-  try { return matchMedia(q).matches; } catch { return false; }
+  try {
+    return matchMedia(q).matches;
+  } catch {
+    return false;
+  }
 }
 
 export function syntaxOk(src) {
-  try { new Function(src); return true; } catch { return false; }
+  try {
+    new Function(src);
+    return true;
+  } catch {
+    return false;
+  }
 }
 
 export function withTimeout(promise, ms, onTimeout) {

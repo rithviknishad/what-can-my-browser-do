@@ -82,7 +82,9 @@ export const category = {
       description: "navigator.wakeLock.request().",
       mdnUrl: mdn("Web/API/Screen_Wake_Lock_API"),
       tags: ["device"],
-      detect: () => ({ supported: !!(navigator.wakeLock && navigator.wakeLock.request) }),
+      detect: () => ({
+        supported: !!(navigator.wakeLock && navigator.wakeLock.request),
+      }),
     },
     {
       id: "dev-ambient-light",
@@ -90,7 +92,9 @@ export const category = {
       description: "AmbientLightSensor.",
       mdnUrl: mdn("Web/API/AmbientLightSensor"),
       tags: ["device", "sensor"],
-      detect: () => ({ supported: typeof window.AmbientLightSensor !== "undefined" }),
+      detect: () => ({
+        supported: typeof window.AmbientLightSensor !== "undefined",
+      }),
     },
     {
       id: "dev-proximity",

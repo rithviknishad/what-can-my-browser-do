@@ -83,7 +83,9 @@ export const category = {
       description: "CSS.paintWorklet lets authors program paint().",
       mdnUrl: mdn("Web/API/CSS/paintWorklet_static"),
       tags: ["css", "houdini"],
-      detect: () => ({ supported: !!(typeof CSS !== "undefined" && CSS.paintWorklet) }),
+      detect: () => ({
+        supported: !!(typeof CSS !== "undefined" && CSS.paintWorklet),
+      }),
     },
     {
       id: "css-property",
@@ -93,7 +95,8 @@ export const category = {
       tags: ["css", "houdini"],
       detect: () => ({
         supported:
-          typeof CSS !== "undefined" && typeof CSS.registerProperty === "function",
+          typeof CSS !== "undefined" &&
+          typeof CSS.registerProperty === "function",
       }),
     },
   ],

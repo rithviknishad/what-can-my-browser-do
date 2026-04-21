@@ -11,7 +11,7 @@ export const category = {
     {
       id: "js-modules",
       label: "ES Modules",
-      description: "<script type=\"module\"> & static import.",
+      description: '<script type="module"> & static import.',
       mdnUrl: mdn("Web/JavaScript/Guide/Modules"),
       tags: ["js", "modules"],
       detect: () => ({
@@ -71,7 +71,8 @@ export const category = {
       tags: ["js", "memory"],
       detect: () => ({
         supported:
-          typeof WeakRef === "function" && typeof FinalizationRegistry === "function",
+          typeof WeakRef === "function" &&
+          typeof FinalizationRegistry === "function",
       }),
     },
     {

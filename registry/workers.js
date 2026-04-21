@@ -39,9 +39,13 @@ export const category = {
       mdnUrl: mdn("Web/API/Worklet"),
       tags: ["worker"],
       detect: () => {
-        const a = typeof AudioWorklet !== "undefined" ||
-          !!(globalThis.audioWorklet) ||
-          !!(typeof AudioContext !== "undefined" && AudioContext.prototype.audioWorklet);
+        const a =
+          typeof AudioWorklet !== "undefined" ||
+          !!globalThis.audioWorklet ||
+          !!(
+            typeof AudioContext !== "undefined" &&
+            AudioContext.prototype.audioWorklet
+          );
         const p = !!(typeof CSS !== "undefined" && CSS.paintWorklet);
         const l = !!(typeof CSS !== "undefined" && CSS.layoutWorklet);
         const count = [a, p, l].filter(Boolean).length;
@@ -64,7 +68,9 @@ export const category = {
         if (!sab || !at) return { supported: false };
         return {
           supported: iso ? true : "partial",
-          note: iso ? undefined : "crossOriginIsolated is false — SAB usage restricted",
+          note: iso
+            ? undefined
+            : "crossOriginIsolated is false — SAB usage restricted",
         };
       },
     },

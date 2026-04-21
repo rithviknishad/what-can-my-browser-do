@@ -21,13 +21,16 @@ export const category = {
     {
       id: "pwa-manifest-link",
       label: "Manifest link support",
-      description: "Browser can load <link rel=\"manifest\">.",
+      description: 'Browser can load <link rel="manifest">.',
       mdnUrl: mdn("Web/Manifest"),
       tags: ["pwa"],
       detect: () => {
         const l = document.createElement("link");
         l.rel = "manifest";
-        return { supported: l.relList && l.relList.supports && l.relList.supports("manifest") };
+        return {
+          supported:
+            l.relList && l.relList.supports && l.relList.supports("manifest"),
+        };
       },
     },
     {
@@ -60,7 +63,9 @@ export const category = {
       description: "navigator.setAppBadge.",
       mdnUrl: mdn("Web/API/Badging_API"),
       tags: ["pwa"],
-      detect: () => ({ supported: typeof navigator.setAppBadge === "function" }),
+      detect: () => ({
+        supported: typeof navigator.setAppBadge === "function",
+      }),
     },
     {
       id: "pwa-share",

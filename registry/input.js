@@ -40,7 +40,9 @@ export const category = {
       description: "navigator.getGamepads().",
       mdnUrl: mdn("Web/API/Gamepad_API"),
       tags: ["input", "hardware"],
-      detect: () => ({ supported: typeof navigator.getGamepads === "function" }),
+      detect: () => ({
+        supported: typeof navigator.getGamepads === "function",
+      }),
     },
     {
       id: "input-speech-recognition",
@@ -101,10 +103,20 @@ export const category = {
       mdnUrl: mdn("Web/HTML/Element/input"),
       tags: ["input", "forms"],
       detect: () => {
-        const types = ["date", "color", "range", "number", "email", "url", "time", "datetime-local"];
+        const types = [
+          "date",
+          "color",
+          "range",
+          "number",
+          "email",
+          "url",
+          "time",
+          "datetime-local",
+        ];
         const ok = types.filter(supportsInputType);
         return {
-          supported: ok.length === types.length ? true : ok.length ? "partial" : false,
+          supported:
+            ok.length === types.length ? true : ok.length ? "partial" : false,
           value: `${ok.length}/${types.length} (${ok.join(", ")})`,
         };
       },

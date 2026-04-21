@@ -4,7 +4,10 @@ import { categories } from "../registry/index.js";
 import { runAll } from "./detect.js";
 import { setResult, setAll } from "./state.js";
 import {
-  renderCategories, renderPillNav, renderSummary, bindResultUpdates,
+  renderCategories,
+  renderPillNav,
+  renderSummary,
+  bindResultUpdates,
 } from "./render.js";
 import { setSearch, setSupport, setCategory } from "./search.js";
 import { downloadJson, copyShareUrl, readSharedFromHash } from "./export.js";
@@ -23,12 +26,16 @@ function toast(msg, ms = 1800) {
 
 function applyTheme(theme) {
   document.documentElement.dataset.theme = theme;
-  try { localStorage.setItem("wcmbd:theme", theme); } catch {}
+  try {
+    localStorage.setItem("wcmbd:theme", theme);
+  } catch {}
 }
 
 function initTheme() {
   let t = "auto";
-  try { t = localStorage.getItem("wcmbd:theme") || "auto"; } catch {}
+  try {
+    t = localStorage.getItem("wcmbd:theme") || "auto";
+  } catch {}
   applyTheme(t);
 }
 
@@ -65,11 +72,14 @@ async function maybeLoadShared() {
 
 function wireUI() {
   $("#search").addEventListener("input", (e) => setSearch(e.target.value));
-  $("#filter-support").addEventListener("change", (e) => setSupport(e.target.value));
+  $("#filter-support").addEventListener("change", (e) =>
+    setSupport(e.target.value),
+  );
   $("#btn-theme").addEventListener("click", cycleTheme);
   $("#btn-rerun").addEventListener("click", async () => {
     toast("Re-running...");
-    if (location.hash.includes("s=")) history.replaceState(null, "", location.pathname);
+    if (location.hash.includes("s="))
+      history.replaceState(null, "", location.pathname);
     await runDetections();
     toast("Done");
   });
@@ -80,12 +90,19 @@ function wireUI() {
   $("#btn-share").addEventListener("click", async () => {
     const { url, copied } = await copyShareUrl();
     history.replaceState(null, "", url);
-    toast(copied ? "Share URL copied to clipboard" : "Share URL set in address bar");
+    toast(
+      copied ? "Share URL copied to clipboard" : "Share URL set in address bar",
+    );
   });
 
   document.addEventListener("keydown", (e) => {
     const ae = document.activeElement;
-    if (e.key === "/" && ae && ae.tagName !== "INPUT" && ae.tagName !== "TEXTAREA") {
+    if (
+      e.key === "/" &&
+      ae &&
+      ae.tagName !== "INPUT" &&
+      ae.tagName !== "TEXTAREA"
+    ) {
       e.preventDefault();
       $("#search").focus();
     }

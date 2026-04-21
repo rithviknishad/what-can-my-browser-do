@@ -43,7 +43,10 @@ export const category = {
         const m = performance.memory;
         if (!m) return { supported: false };
         const mb = (n) => (n ? `${Math.round(n / (1024 * 1024))} MB` : "?");
-        return { supported: true, value: `heap ${mb(m.usedJSHeapSize)} / ${mb(m.jsHeapSizeLimit)}` };
+        return {
+          supported: true,
+          value: `heap ${mb(m.usedJSHeapSize)} / ${mb(m.jsHeapSizeLimit)}`,
+        };
       },
     },
     {
@@ -93,7 +96,9 @@ export const category = {
       mdnUrl: mdn("Web/API/Scheduler/postTask"),
       tags: ["perf"],
       detect: () => ({
-        supported: !!(globalThis.scheduler && typeof scheduler.postTask === "function"),
+        supported: !!(
+          globalThis.scheduler && typeof scheduler.postTask === "function"
+        ),
       }),
     },
   ],

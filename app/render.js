@@ -3,8 +3,18 @@
 
 import { getAllResults, subscribe } from "./state.js";
 
-const ICON = { true: "\u2713", false: "\u2715", partial: "~", pending: "\u2026" };
-const ARIA = { true: "supported", false: "not supported", partial: "partial support", pending: "pending" };
+const ICON = {
+  true: "\u2713",
+  false: "\u2715",
+  partial: "~",
+  pending: "\u2026",
+};
+const ARIA = {
+  true: "supported",
+  false: "not supported",
+  partial: "partial support",
+  pending: "pending",
+};
 
 function iconFor(supported) {
   return ICON[String(supported)] ?? "\u2026";
@@ -39,6 +49,19 @@ function rowEl(check) {
     a.title = "MDN docs";
     label.appendChild(a);
   }
+  const ciUrl = check.caniuseId
+    ? `https://caniuse.com/${encodeURIComponent(check.caniuseId)}`
+    : `https://caniuse.com/?search=${encodeURIComponent(check.label)}`;
+  const ci = document.createElement("a");
+  ci.className = "caniuse";
+  ci.href = ciUrl;
+  ci.target = "_blank";
+  ci.rel = "noopener noreferrer";
+  ci.textContent = "caniuse";
+  ci.title = check.caniuseId
+    ? `caniuse.com/${check.caniuseId}`
+    : `Search caniuse.com for “${check.label}”`;
+  label.appendChild(ci);
   main.appendChild(label);
   if (check.description) {
     const desc = document.createElement("div");
@@ -67,7 +90,8 @@ export function renderCategories(categories, root) {
     icon.setAttribute("aria-hidden", "true");
     icon.textContent = cat.icon || "\u2022";
     const counter = document.createElement("span");
-    counter.style.cssText = "font-weight:400;color:var(--fg-faint);letter-spacing:0;text-transform:none;";
+    counter.style.cssText =
+      "font-weight:400;color:var(--fg-faint);letter-spacing:0;text-transform:none;";
     counter.textContent = ` (${cat.checks.length})`;
     h.append(icon, document.createTextNode(" " + cat.label), counter);
     section.appendChild(h);
@@ -122,12 +146,19 @@ export function bindResultUpdates(summaryEl, categories) {
 
 export function renderSummary(categories, el) {
   const results = getAllResults();
-  let total = 0, ok = 0, partial = 0, no = 0, pending = 0;
+  let total = 0,
+    ok = 0,
+    partial = 0,
+    no = 0,
+    pending = 0;
   for (const cat of categories) {
     for (const c of cat.checks) {
       total++;
       const r = results.get(c.id);
-      if (!r) { pending++; continue; }
+      if (!r) {
+        pending++;
+        continue;
+      }
       if (r.supported === true) ok++;
       else if (r.supported === "partial") partial++;
       else no++;
@@ -141,10 +172,10 @@ export function renderSummary(categories, el) {
     return s;
   };
   el.append(
-    chip("ok",   `<strong>${ok}</strong> supported`),
+    chip("ok", `<strong>${ok}</strong> supported`),
     chip("warn", `<strong>${partial}</strong> partial`),
-    chip("err",  `<strong>${no}</strong> unsupported`),
-    chip("",     `<strong>${total}</strong> total`),
+    chip("err", `<strong>${no}</strong> unsupported`),
+    chip("", `<strong>${total}</strong> total`),
   );
   if (pending) el.append(chip("", `<strong>${pending}</strong> pending`));
 }
@@ -167,6 +198,8 @@ export function renderPillNav(categories, el, onSelect) {
   const total = categories.reduce((n, c) => n + c.checks.length, 0);
   el.appendChild(mk("*", "All", total, true));
   for (const c of categories) {
-    el.appendChild(mk(c.id, `${c.icon || ""} ${c.label}`, c.checks.length, false));
+    el.appendChild(
+      mk(c.id, `${c.icon || ""} ${c.label}`, c.checks.length, false),
+    );
   }
 }

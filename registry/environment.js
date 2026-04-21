@@ -49,7 +49,10 @@ export const category = {
       description: "Online/offline hint (not authoritative).",
       mdnUrl: mdn("Web/API/Navigator/onLine"),
       tags: ["env", "network"],
-      detect: () => ({ supported: true, value: navigator.onLine ? "online" : "offline" }),
+      detect: () => ({
+        supported: true,
+        value: navigator.onLine ? "online" : "offline",
+      }),
     },
     {
       id: "env-cookies",
@@ -83,7 +86,9 @@ export const category = {
       tags: ["env", "hardware"],
       detect: () => {
         const m = navigator.deviceMemory;
-        return m ? { supported: true, value: `~${m} GB` } : { supported: false };
+        return m
+          ? { supported: true, value: `~${m} GB` }
+          : { supported: false };
       },
     },
     {
@@ -103,7 +108,10 @@ export const category = {
       description: "Logical → physical pixel ratio.",
       mdnUrl: mdn("Web/API/Window/devicePixelRatio"),
       tags: ["env", "display"],
-      detect: () => ({ supported: true, value: String(window.devicePixelRatio) }),
+      detect: () => ({
+        supported: true,
+        value: String(window.devicePixelRatio),
+      }),
     },
     {
       id: "env-connection",
@@ -112,7 +120,10 @@ export const category = {
       mdnUrl: mdn("Web/API/NetworkInformation"),
       tags: ["env", "network"],
       detect: () => {
-        const c = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
+        const c =
+          navigator.connection ||
+          navigator.mozConnection ||
+          navigator.webkitConnection;
         if (!c) return { supported: false };
         const parts = [];
         if (c.effectiveType) parts.push(c.effectiveType);
@@ -137,7 +148,9 @@ export const category = {
       id: "env-timezone",
       label: "Timezone",
       description: "Intl.DateTimeFormat().resolvedOptions().timeZone.",
-      mdnUrl: mdn("Web/JavaScript/Reference/Global_Objects/Intl/DateTimeFormat"),
+      mdnUrl: mdn(
+        "Web/JavaScript/Reference/Global_Objects/Intl/DateTimeFormat",
+      ),
       tags: ["env", "i18n"],
       detect: () => {
         const tz = Intl.DateTimeFormat().resolvedOptions().timeZone;

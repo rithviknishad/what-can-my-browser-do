@@ -64,7 +64,9 @@ export const category = {
       description: "Resumable, long-running fetches.",
       mdnUrl: mdn("Web/API/Background_Fetch_API"),
       tags: ["network", "sw"],
-      detect: () => ({ supported: typeof BackgroundFetchManager !== "undefined" }),
+      detect: () => ({
+        supported: typeof BackgroundFetchManager !== "undefined",
+      }),
     },
   ],
 };

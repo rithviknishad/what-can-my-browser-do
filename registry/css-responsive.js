@@ -45,7 +45,7 @@ export const category = {
       detect: () => {
         if (!H.mediaSupported("(pointer)")) return { supported: false };
         const v = ["fine", "coarse", "none"].find((x) =>
-          H.matchMedia(`(pointer: ${x})`)
+          H.matchMedia(`(pointer: ${x})`),
         );
         return { supported: true, value: v || "unknown" };
       },
@@ -57,8 +57,11 @@ export const category = {
       mdnUrl: mdn("Web/CSS/@media/prefers-color-scheme"),
       tags: ["css", "theme"],
       detect: () => {
-        if (!H.mediaSupported("(prefers-color-scheme)")) return { supported: false };
-        const v = H.matchMedia("(prefers-color-scheme: dark)") ? "dark" : "light";
+        if (!H.mediaSupported("(prefers-color-scheme)"))
+          return { supported: false };
+        const v = H.matchMedia("(prefers-color-scheme: dark)")
+          ? "dark"
+          : "light";
         return { supported: true, value: v };
       },
     },
@@ -69,9 +72,10 @@ export const category = {
       mdnUrl: mdn("Web/CSS/@media/prefers-contrast"),
       tags: ["css", "a11y"],
       detect: () => {
-        if (!H.mediaSupported("(prefers-contrast)")) return { supported: false };
+        if (!H.mediaSupported("(prefers-contrast)"))
+          return { supported: false };
         const v = ["more", "less", "custom", "no-preference"].find((x) =>
-          H.matchMedia(`(prefers-contrast: ${x})`)
+          H.matchMedia(`(prefers-contrast: ${x})`),
         );
         return { supported: true, value: v || "unknown" };
       },

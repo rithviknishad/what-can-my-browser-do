@@ -31,7 +31,9 @@ export const category = {
       description: "Animate from the element's initial style.",
       mdnUrl: mdn("Web/CSS/@starting-style"),
       tags: ["css", "animation"],
-      detect: () => ({ supported: typeof CSSStartingStyleRule !== "undefined" }),
+      detect: () => ({
+        supported: typeof CSSStartingStyleRule !== "undefined",
+      }),
     },
     {
       id: "css-scroll-timeline",
@@ -48,10 +50,13 @@ export const category = {
       mdnUrl: mdn("Web/CSS/@media/prefers-reduced-motion"),
       tags: ["css", "a11y", "motion"],
       detect: () => {
-        if (!H.mediaSupported("(prefers-reduced-motion)")) return { supported: false };
+        if (!H.mediaSupported("(prefers-reduced-motion)"))
+          return { supported: false };
         return {
           supported: true,
-          value: H.matchMedia("(prefers-reduced-motion: reduce)") ? "reduce" : "no-preference",
+          value: H.matchMedia("(prefers-reduced-motion: reduce)")
+            ? "reduce"
+            : "no-preference",
         };
       },
     },

@@ -23,8 +23,9 @@ export const category = {
       mdnUrl: mdn("Web/API/Web_Authentication_API"),
       tags: ["security", "auth"],
       detect: () => ({
-        supported:
-          !!(navigator.credentials && typeof PublicKeyCredential !== "undefined"),
+        supported: !!(
+          navigator.credentials && typeof PublicKeyCredential !== "undefined"
+        ),
       }),
     },
     {
@@ -34,8 +35,10 @@ export const category = {
       mdnUrl: mdn("Web/API/Permissions_API"),
       tags: ["security"],
       detect: () => ({
-        supported:
-          !!(navigator.permissions && typeof navigator.permissions.query === "function"),
+        supported: !!(
+          navigator.permissions &&
+          typeof navigator.permissions.query === "function"
+        ),
       }),
     },
     {

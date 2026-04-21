@@ -14,8 +14,12 @@ export function setAll(entries) {
   for (const l of listeners) l(null, null);
 }
 
-export function getResult(id) { return results.get(id); }
-export function getAllResults() { return results; }
+export function getResult(id) {
+  return results.get(id);
+}
+export function getAllResults() {
+  return results;
+}
 
 export function subscribe(fn) {
   listeners.add(fn);

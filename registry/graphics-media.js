@@ -34,13 +34,11 @@ function canPlayCodec(mime) {
 
 // Tiny base64 test images for decode-sniff
 const PROBE_IMG = {
-  webp:
-    "data:image/webp;base64,UklGRiIAAABXRUJQVlA4IBYAAAAwAQCdASoBAAEADsD+JaQAA3AAAAAA",
+  webp: "data:image/webp;base64,UklGRiIAAABXRUJQVlA4IBYAAAAwAQCdASoBAAEADsD+JaQAA3AAAAAA",
   avif:
     // 1x1 AVIF
     "data:image/avif;base64,AAAAHGZ0eXBhdmlmAAAAAG1pZjFtaWFmQXZpdmF2aWYAAADybWV0YQAAAAAAAAAhaGRscgAAAAAAAAAAcGljdAAAAAAAAAAAAAAAAAAAAAAOcGl0bQAAAAAAAQAAACRpbG9jAAAAAERAAAEAAQAAAAABGgABAAAAAAAAABgAAAAoaWluZgAAAAAAAQAAABppbmZlAgAAAAABAABhdjAxQ29sb3IAAAAAamlwcnAAAABLaXBjbwAAABNjb2xybmNseAACAAIABoAAAAAMYXYxQ4EADAAAAAAUaXNwZQAAAAAAAAABAAAAAQAAABBwaXhpAAAAAAMICAgAAAAXaXBtYQAAAAAAAAABAAEEAQKDBAAAACxtZGF0EgAKBxgADlAgMgkQAAAAAAAASABoipih4AAAABzMdOQDQw==",
-  jxl:
-    "data:image/jxl;base64,/woAEBAJCAQALiABwSDEBABe",
+  jxl: "data:image/jxl;base64,/woAEBAJCAQALiABwSDEBABe",
 };
 async function decodableImage(src) {
   try {
@@ -96,7 +94,7 @@ export const category = {
         const adapter = await H.withTimeout(
           navigator.gpu.requestAdapter(),
           1500,
-          null
+          null,
         );
         if (!adapter) {
           return {
@@ -105,9 +103,10 @@ export const category = {
           };
         }
         const info = adapter.info || {};
-        const v = [info.vendor, info.architecture, info.device]
-          .filter(Boolean)
-          .join(" / ") || undefined;
+        const v =
+          [info.vendor, info.architecture, info.device]
+            .filter(Boolean)
+            .join(" / ") || undefined;
         return { supported: true, value: v };
       },
     },
@@ -122,7 +121,7 @@ export const category = {
     {
       id: "media-video-av1",
       label: "AV1 video",
-      description: "video/mp4; codecs=\"av01.0.05M.08\".",
+      description: 'video/mp4; codecs="av01.0.05M.08".',
       mdnUrl: mdn("Web/Media/Formats/Video_codecs"),
       tags: ["media", "codec"],
       detect: () => canPlayCodec('video/mp4; codecs="av01.0.05M.08"'),
@@ -130,7 +129,7 @@ export const category = {
     {
       id: "media-video-hevc",
       label: "HEVC / H.265 video",
-      description: "video/mp4; codecs=\"hvc1\".",
+      description: 'video/mp4; codecs="hvc1".',
       mdnUrl: mdn("Web/Media/Formats/Video_codecs"),
       tags: ["media", "codec"],
       detect: () => canPlayCodec('video/mp4; codecs="hvc1.1.6.L93.B0"'),
@@ -138,7 +137,7 @@ export const category = {
     {
       id: "media-video-vp9",
       label: "VP9 video",
-      description: "video/webm; codecs=\"vp9\".",
+      description: 'video/webm; codecs="vp9".',
       mdnUrl: mdn("Web/Media/Formats/Video_codecs"),
       tags: ["media", "codec"],
       detect: () => canPlayCodec('video/webm; codecs="vp9"'),
@@ -175,7 +174,8 @@ export const category = {
       tags: ["media", "codec"],
       detect: () => ({
         supported:
-          typeof VideoEncoder !== "undefined" && typeof VideoDecoder !== "undefined",
+          typeof VideoEncoder !== "undefined" &&
+          typeof VideoDecoder !== "undefined",
       }),
     },
   ],

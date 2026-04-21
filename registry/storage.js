@@ -47,7 +47,9 @@ export const category = {
       description: "Read/write user-selected files.",
       mdnUrl: mdn("Web/API/File_System_Access_API"),
       tags: ["storage", "file"],
-      detect: () => ({ supported: typeof window.showOpenFilePicker === "function" }),
+      detect: () => ({
+        supported: typeof window.showOpenFilePicker === "function",
+      }),
     },
     {
       id: "storage-manager",
@@ -56,10 +58,13 @@ export const category = {
       mdnUrl: mdn("Web/API/StorageManager"),
       tags: ["storage"],
       detect: async () => {
-        if (!(navigator.storage && navigator.storage.estimate)) return { supported: false };
+        if (!(navigator.storage && navigator.storage.estimate))
+          return { supported: false };
         try {
           const est = await navigator.storage.estimate();
-          const q = est.quota ? `${Math.round(est.quota / (1024 * 1024))} MB quota` : undefined;
+          const q = est.quota
+            ? `${Math.round(est.quota / (1024 * 1024))} MB quota`
+            : undefined;
           return { supported: true, value: q };
         } catch {
           return { supported: true };
@@ -81,8 +86,10 @@ export const category = {
       mdnUrl: mdn("Web/API/File_System_API/Origin_private_file_system"),
       tags: ["storage", "file"],
       detect: () => ({
-        supported:
-          !!(navigator.storage && typeof navigator.storage.getDirectory === "function"),
+        supported: !!(
+          navigator.storage &&
+          typeof navigator.storage.getDirectory === "function"
+        ),
       }),
     },
   ],
