@@ -11,6 +11,7 @@ import {
 } from "./render.js";
 import { setSearch, setSupport, setCategory } from "./search.js";
 import { downloadJson, copyShareUrl, readSharedFromHash } from "./export.js";
+import { createReporter } from "./report.js";
 
 const $ = (sel) => document.querySelector(sel);
 
@@ -118,9 +119,10 @@ async function main() {
   renderSummary(categories, $("#summary"));
   bindResultUpdates($("#summary"), categories);
   wireUI();
-
+  const reporter = createReporter(toast);
   const loadedShared = await maybeLoadShared();
   if (!loadedShared) await runDetections();
+  if (reporter.enabled) await reporter.send();
 }
 
 main();

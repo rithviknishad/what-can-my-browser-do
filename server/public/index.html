@@ -1,0 +1,248 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Capability reports</title>
+    <style>
+      :root {
+        --bg: #fff;
+        --fg: #111;
+        --fg-muted: #555;
+        --fg-faint: #888;
+        --border: #e5e5e5;
+        --ok: #0a7d2c;
+        --warn: #a06000;
+        --err: #b11919;
+        --accent: #0b5fff;
+      }
+      @media (prefers-color-scheme: dark) {
+        :root {
+          --bg: #111;
+          --fg: #eee;
+          --fg-muted: #bbb;
+          --fg-faint: #888;
+          --border: #2a2a2a;
+          --ok: #3ec26a;
+          --warn: #e0a040;
+          --err: #ef6a6a;
+          --accent: #4a8bff;
+        }
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        font:
+          14px/1.45 system-ui,
+          sans-serif;
+        background: var(--bg);
+        color: var(--fg);
+      }
+      header,
+      main,
+      footer {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 20px;
+      }
+      header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        border-bottom: 1px solid var(--border);
+      }
+      h1 {
+        font-size: 18px;
+        margin: 0;
+      }
+      .meta {
+        color: var(--fg-muted);
+        font-size: 12px;
+      }
+      table {
+        width: 100%;
+        border-collapse: collapse;
+      }
+      th,
+      td {
+        padding: 10px 12px;
+        text-align: left;
+        border-bottom: 1px solid var(--border);
+        vertical-align: top;
+      }
+      th {
+        font-size: 11px;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        color: var(--fg-faint);
+        font-weight: 600;
+      }
+      tr:hover td {
+        background: rgba(127, 127, 127, 0.06);
+      }
+      a {
+        color: var(--accent);
+        text-decoration: none;
+      }
+      a:hover {
+        text-decoration: underline;
+      }
+      .pill {
+        display: inline-block;
+        padding: 1px 6px;
+        border-radius: 8px;
+        font-size: 11px;
+        border: 1px solid var(--border);
+        color: var(--fg-muted);
+        margin-right: 4px;
+      }
+      .pill.ok {
+        color: var(--ok);
+        border-color: var(--ok);
+      }
+      .pill.warn {
+        color: var(--warn);
+        border-color: var(--warn);
+      }
+      .pill.err {
+        color: var(--err);
+        border-color: var(--err);
+      }
+      .ua {
+        font-family: ui-monospace, Menlo, monospace;
+        font-size: 11px;
+        color: var(--fg-muted);
+        max-width: 420px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+      .empty {
+        padding: 40px;
+        text-align: center;
+        color: var(--fg-muted);
+      }
+      .del {
+        border: 1px solid var(--border);
+        background: transparent;
+        color: var(--fg-muted);
+        border-radius: 6px;
+        padding: 2px 8px;
+        font-size: 11px;
+        cursor: pointer;
+      }
+      .del:hover {
+        color: var(--err);
+        border-color: var(--err);
+      }
+      code {
+        font-family: ui-monospace, Menlo, monospace;
+        font-size: 12px;
+        background: rgba(127, 127, 127, 0.1);
+        padding: 1px 4px;
+        border-radius: 3px;
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <h1>Capability reports</h1>
+      <div class="meta" id="count">loading…</div>
+    </header>
+    <main>
+      <div
+        class="meta"
+        style="margin-bottom: 16px"
+      >
+        Clients post to
+        <code id="endpoint">/api/report</code>. Activate reporting in the main app
+        with <code>?report=&lt;this-server&gt;/api/report&amp;tag=lobby-display</code>.
+      </div>
+      <div id="list"></div>
+    </main>
+
+    <script type="module">
+      const $ = (s) => document.querySelector(s);
+      const qp = new URLSearchParams(location.search);
+      const tokenSuffix = qp.get("t") ? `?t=${encodeURIComponent(qp.get("t"))}` : "";
+
+      $("#endpoint").textContent = `${location.origin}/api/report`;
+
+      function esc(s) {
+        return (s || "").replace(/[&<>"']/g, (c) => ({
+          "&": "&amp;",
+          "<": "&lt;",
+          ">": "&gt;",
+          '"': "&quot;",
+          "'": "&#39;",
+        })[c]);
+      }
+
+      async function load() {
+        const res = await fetch("/api/reports");
+        if (!res.ok) {
+          $("#list").innerHTML = `<div class="empty">Failed to load.</div>`;
+          return;
+        }
+        const { reports } = await res.json();
+        $("#count").textContent = `${reports.length} report${reports.length === 1 ? "" : "s"}`;
+        if (!reports.length) {
+          $("#list").innerHTML = `<div class="empty">No reports yet.</div>`;
+          return;
+        }
+        const rows = reports
+          .map((r) => {
+            const s = r.summary || {};
+            return `
+              <tr>
+                <td>
+                  <a href="/r/${encodeURIComponent(r.id)}${tokenSuffix}">${esc(r.tag || "(untagged)")}</a>
+                  <div class="ua" title="${esc(r.ua)}">${esc(r.ua)}</div>
+                </td>
+                <td class="meta">${esc(r.receivedAt || "")}</td>
+                <td>
+                  <span class="pill ok">${s.ok || 0} ok</span>
+                  <span class="pill warn">${s.partial || 0} partial</span>
+                  <span class="pill err">${s.no || 0} unsupported</span>
+                  <span class="pill">${s.total || 0} total</span>
+                </td>
+                <td style="text-align: right">
+                  <button class="del" data-id="${esc(r.id)}">delete</button>
+                </td>
+              </tr>`;
+          })
+          .join("");
+        $("#list").innerHTML = `
+          <table>
+            <thead>
+              <tr>
+                <th>Tag / User-Agent</th>
+                <th>Received</th>
+                <th>Summary</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody>${rows}</tbody>
+          </table>`;
+
+        for (const btn of document.querySelectorAll(".del")) {
+          btn.addEventListener("click", async () => {
+            const id = btn.dataset.id;
+            if (!confirm(`Delete report ${id}?`)) return;
+            const r = await fetch(
+              `/api/reports/${encodeURIComponent(id)}${tokenSuffix}`,
+              { method: "DELETE" },
+            );
+            if (r.ok) load();
+            else alert("Delete failed: " + r.status);
+          });
+        }
+      }
+
+      load();
+    </script>
+  </body>
+</html>

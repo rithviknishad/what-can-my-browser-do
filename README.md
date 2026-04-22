@@ -4,10 +4,10 @@ A single-page, zero-dependency browser capability inspector. Open the link → g
 
 **Live:** https://rithviknishad.github.io/what-can-my-browser-do/
 
-- 100% client-side. Zero network requests at runtime. No tracking, no backend.
+- 100% client-side by default. No tracking, no backend.
 - Zero third-party dependencies. Fully auditable.
 - ~130+ capability checks across 17 categories.
-- Export results as JSON, share via URL hash.
+- Export results as JSON, share via URL hash, or POST to a callback URL for remote/kiosk reporting.
 
 ## Features
 
@@ -70,7 +70,41 @@ python3 -m http.server 8000
 
 ## Privacy
 
-All detection runs locally in your browser. Nothing is sent anywhere. View source — it's all there.
+All detection runs locally in your browser. By default nothing is sent anywhere. The optional `?report=<url>` mode (see below) POSTs results to the URL you supply — you control the endpoint. View source — it's all there.
+
+## Remote reporting (optional)
+
+For non-interactive clients (digital signage, kiosks, CI browsers), the app can POST its results to a callback URL when opened with `?report=`:
+
+```
+https://rithviknishad.github.io/what-can-my-browser-do/?report=https://your-sink.example.com/api/report&tag=lobby-display
+```
+
+Query params:
+- `report=<url>` — endpoint that receives a POST with the JSON snapshot (required to enable).
+- `tag=<label>` — human-readable device label, stored with the report.
+- `token=<t>` — sent as `Authorization: Bearer <t>` if the sink requires auth.
+- `interval=<minutes>` — re-post periodically (minimum 0.5 = 30s).
+
+**Default behaviour is unchanged**: with no `?report=` param, zero network requests are made.
+
+### Running the sink + viewer server
+
+A zero-dependency Node server is included under [`server/`](server/) — accepts reports, stores one JSON file per report, and serves a browser UI to review them.
+
+```sh
+# Node 18+
+node server/server.js
+# -> http://localhost:8787
+
+# optional: require bearer auth on POST /api/report
+REPORT_TOKEN=secret node server/server.js
+
+# optional: also gate the viewer UI + delete endpoint
+VIEWER_TOKEN=viewsecret node server/server.js
+```
+
+Endpoints: `POST /api/report`, `GET /api/reports`, `GET /api/reports/:id`, `DELETE /api/reports/:id`, `GET /` (index), `GET /r/:id` (viewer). Reports are written atomically to `server/data/` as `<timestamp>__<tag>__<hash>.json`.
 
 ## Contributing
 

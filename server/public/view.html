@@ -1,0 +1,300 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Report viewer</title>
+    <style>
+      :root {
+        --bg: #fff;
+        --bg-soft: #fafafa;
+        --fg: #111;
+        --fg-muted: #555;
+        --fg-faint: #888;
+        --border: #e5e5e5;
+        --ok: #0a7d2c;
+        --warn: #a06000;
+        --err: #b11919;
+        --accent: #0b5fff;
+        --radius-sm: 4px;
+      }
+      @media (prefers-color-scheme: dark) {
+        :root {
+          --bg: #111;
+          --bg-soft: #181818;
+          --fg: #eee;
+          --fg-muted: #bbb;
+          --fg-faint: #888;
+          --border: #2a2a2a;
+          --ok: #3ec26a;
+          --warn: #e0a040;
+          --err: #ef6a6a;
+          --accent: #4a8bff;
+        }
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        font:
+          14px/1.45 system-ui,
+          sans-serif;
+        background: var(--bg);
+        color: var(--fg);
+      }
+      header,
+      main {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 16px 20px;
+      }
+      header {
+        border-bottom: 1px solid var(--border);
+      }
+      header .top {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 12px;
+        flex-wrap: wrap;
+      }
+      h1 {
+        font-size: 16px;
+        margin: 0;
+      }
+      a {
+        color: var(--accent);
+        text-decoration: none;
+      }
+      a:hover {
+        text-decoration: underline;
+      }
+      .meta {
+        color: var(--fg-muted);
+        font-size: 12px;
+        word-break: break-all;
+      }
+      .meta code {
+        font-family: ui-monospace, Menlo, monospace;
+        background: rgba(127, 127, 127, 0.1);
+        padding: 1px 4px;
+        border-radius: 3px;
+      }
+      .chip {
+        display: inline-block;
+        padding: 2px 8px;
+        border-radius: 999px;
+        border: 1px solid var(--border);
+        font-size: 12px;
+        color: var(--fg-muted);
+        margin-right: 4px;
+      }
+      .chip.ok {
+        color: var(--ok);
+        border-color: var(--ok);
+      }
+      .chip.warn {
+        color: var(--warn);
+        border-color: var(--warn);
+      }
+      .chip.err {
+        color: var(--err);
+        border-color: var(--err);
+      }
+      #summary {
+        margin: 12px 0;
+      }
+
+      /* replicate the row styling from the main app */
+      .category {
+        margin: 28px 0;
+      }
+      .category h2 {
+        font-size: 11px;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        color: var(--fg-faint);
+        margin: 0 0 8px;
+        font-weight: 600;
+      }
+      .rows {
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        overflow: hidden;
+        background: var(--bg-soft);
+      }
+      .row {
+        display: grid;
+        grid-template-columns: 32px 1fr auto;
+        gap: 12px;
+        padding: 10px 14px;
+        border-bottom: 1px solid var(--border);
+        align-items: start;
+      }
+      .row:last-child {
+        border-bottom: 0;
+      }
+      .row .status {
+        font-weight: 700;
+        text-align: center;
+      }
+      .row[data-supported="true"] .status {
+        color: var(--ok);
+      }
+      .row[data-supported="partial"] .status {
+        color: var(--warn);
+      }
+      .row[data-supported="false"] .status {
+        color: var(--err);
+      }
+      .row[data-supported="pending"] {
+        opacity: 0.55;
+      }
+      .row .label {
+        font-weight: 500;
+        display: flex;
+        gap: 8px;
+        align-items: center;
+        flex-wrap: wrap;
+      }
+      .row .desc {
+        color: var(--fg-muted);
+        font-size: 12px;
+        margin-top: 2px;
+      }
+      .row .meta {
+        font-size: 12px;
+        text-align: right;
+      }
+      .row .value {
+        font-family: ui-monospace, Menlo, monospace;
+        font-size: 11px;
+        color: var(--fg);
+        display: inline-block;
+        max-width: 260px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        vertical-align: bottom;
+      }
+      .row .note {
+        font-size: 11px;
+        color: var(--fg-faint);
+        max-width: 360px;
+      }
+      .row .mdn,
+      .row .caniuse {
+        font-size: 11px;
+        padding: 2px 6px;
+        border-radius: var(--radius-sm);
+        border: 1px solid var(--border);
+        color: var(--fg-muted);
+      }
+
+      .env {
+        margin-top: 8px;
+        font-size: 12px;
+        color: var(--fg-muted);
+      }
+      .env dl {
+        display: grid;
+        grid-template-columns: max-content 1fr;
+        gap: 4px 12px;
+        margin: 8px 0 0;
+      }
+      .env dt {
+        color: var(--fg-faint);
+      }
+      .env dd {
+        margin: 0;
+        font-family: ui-monospace, Menlo, monospace;
+        word-break: break-all;
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <div class="top">
+        <h1>
+          <a href="/">← reports</a>
+          &nbsp;·&nbsp;
+          <span id="tag">report</span>
+        </h1>
+        <div class="meta" id="received"></div>
+      </div>
+      <div id="summary"></div>
+      <details class="env">
+        <summary>Environment</summary>
+        <dl id="env-dl"></dl>
+      </details>
+    </header>
+    <main>
+      <div id="results"></div>
+    </main>
+
+    <script type="module">
+      import { categories } from "/registry/index.js";
+      import { setAll } from "/app/state.js";
+      import {
+        renderCategories,
+        renderSummary,
+        bindResultUpdates,
+      } from "/app/render.js";
+
+      const id = decodeURIComponent(location.pathname.replace(/^\/r\//, ""));
+      const $ = (s) => document.querySelector(s);
+
+      function esc(s) {
+        return (s || "").replace(/[&<>"']/g, (c) => ({
+          "&": "&amp;",
+          "<": "&lt;",
+          ">": "&gt;",
+          '"': "&quot;",
+          "'": "&#39;",
+        })[c]);
+      }
+
+      async function main() {
+        const res = await fetch(`/api/reports/${encodeURIComponent(id)}`);
+        if (!res.ok) {
+          document.body.innerHTML = `<main><p class="meta">Report not found.</p></main>`;
+          return;
+        }
+        const report = await res.json();
+
+        $("#tag").textContent = report.tag || "(untagged)";
+        $("#received").textContent = `received ${report._meta?.receivedAt || ""}`;
+
+        renderCategories(categories, $("#results"));
+        renderSummary(categories, $("#summary"));
+        bindResultUpdates($("#summary"), categories);
+
+        const entries = Object.entries(report.results || {});
+        setAll(entries);
+
+        const env = report.env || {};
+        const dl = $("#env-dl");
+        const rows = [
+          ["UA", env.ua || report.ua],
+          ["Platform", env.platform],
+          ["Language", env.language],
+          ["Timezone", env.timezone],
+          ["Screen", env.screen && `${env.screen.w}×${env.screen.h} @${env.screen.dpr}x (${env.screen.colorDepth}bpp)`],
+          ["Viewport", env.viewport && `${env.viewport.w}×${env.viewport.h}`],
+          ["Cores", env.hardwareConcurrency],
+          ["Memory (GB)", env.deviceMemory],
+          ["Online", env.online],
+          ["Reported from", env.href],
+          ["Client IP", report._meta?.clientIp],
+        ];
+        dl.innerHTML = rows
+          .filter(([, v]) => v !== undefined && v !== null && v !== "")
+          .map(([k, v]) => `<dt>${esc(k)}</dt><dd>${esc(String(v))}</dd>`)
+          .join("");
+      }
+
+      main();
+    </script>
+  </body>
+</html>
